@@ -98,25 +98,26 @@ metadata {
 
 def initialize() {
 	state.price = 100;
-	log.debug("init")
+    log.debug("[Tibber.devicehandler] START_UPDATE")
+	log.debug("[Tibber.devicehandler] init")
     getPrice()
-    schedule("0 2 * * * ?", getPrice)
+    schedule("* 0/1 * * * ?", getPrice)
 }
 
 def installed() {
-	log.debug "Installed"
+	log.debug "[Tibber.devicehandler] Installed"
     initialize()
 }
 
 def updated() {
-	log.debug "Updated"
+	log.debug "[Tibber.devicehandler] Updated"
     initialize()
 }
 
 def getPrice() {
-	log.debug("getPrice")
+	log.debug("[Tibber.devicehandler] Start getPrice")
     if(tibber_apikey == null){
-        log.error("API key is not set. Please set it in the settings.")
+        log.error("[Tibber.devicehandler] API key is not set. Please set it in the settings.")
     } else {
         def params = [
             uri: "https://api.tibber.com/v1-beta/gql",
@@ -172,15 +173,16 @@ def getPrice() {
                     sendEvent(name: "priceMinDayLabel", value: state.priceMinDayLabel)
 
                     sendEvent(name: "currency", value: state.currency)
+                    log.debug("[Tibber.devicehandler] END_UPDATE")
                 }
             }
         } catch (e) {
-            log.debug "something went wrong: $e"
+            log.debug "[Tibber.devicehandler] something went wrong: $e"
         }
     }
 }
 def parse(String description) {
-    log.debug "parse description: ${description}"
+    log.debug "[Tibber.devicehandler] parse description: ${description}"
     def eventMap = [
         createEvent(name: "energy", value: state.price, unit: state.currency)
         ,createEvent(name: "price", value: state.price, unit: state.currency)
@@ -194,7 +196,7 @@ def parse(String description) {
         ,createEvent(name: "priceMinDayLabel", value: state.priceMinDayLabel)    
         ,createEvent(name: "currencyLabel", value: state.currency, unit: state.currency)   
     ]
-    log.debug "Parse returned ${description}"
+    log.debug "[Tibber.devicehandler] Parse returned ${description}"
     return eventMap
 }
 
